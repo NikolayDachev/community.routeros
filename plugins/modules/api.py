@@ -260,12 +260,13 @@ class ROS_api_module:
             remove=dict(type='str'),
             update=dict(type='str'),
             cmd=dict(type='str'),
+            rawcmd=dict(type='str'),
             query=dict(type='str')))
 
         self.module = AnsibleModule(argument_spec=module_args,
                                     supports_check_mode=False,
                                     mutually_exclusive=(('add', 'remove', 'update',
-                                                         'cmd', 'query'),),)
+                                                         'cmd', 'rawcmd','query'),),)
 
         if not HAS_LIB:
             self.module.fail_json(msg=missing_required_lib("librouteros"),
@@ -282,6 +283,7 @@ class ROS_api_module:
         self.remove = self.module.params['remove']
         self.update = self.module.params['update']
         self.arbitrary = self.module.params['cmd']
+        self.arbitrary_raw = self.module.params['rawcmd']
 
         self.where = None
         self.query = self.module.params['query']
@@ -310,6 +312,8 @@ class ROS_api_module:
             self.api_query()
         elif self.arbitrary:
             self.api_arbitrary()
+        elif self.arbitrary_raw:
+            self.api_arbitrary_raw()
         else:
             self.api_get_all()
 
@@ -422,6 +426,9 @@ class ROS_api_module:
             self.return_result(False)
         except Exception as e:
             self.errors(e)
+
+    def api_arbitrary_raw(self):
+        pass
 
     def return_result(self, ch_status=False, status=True):
         if status == "False":
