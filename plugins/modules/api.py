@@ -428,7 +428,22 @@ class ROS_api_module:
             self.errors(e)
 
     def api_arbitrary_raw(self):
-        pass
+        arbitrary_raw_cfg = {'path':'', 'cmd':'', 'params':''}
+        self.arbitrary_raw = self.arbitrary_raw.split(' ')
+        for i,n in enumerate(self.arbitrary_raw):
+            if '=' in n:
+                arbitrary_raw_cfg = {'path':' '.join(self.arbitrary_raw[:i - 1]),
+                                     'cmd': self.arbitrary_raw[i - 1],
+                                     'params': self.list_to_dic(self.arbitrary_raw[i:])}
+        try:
+            self.api_path = self.api_add_path(self.api, arbitrary_raw_cfg['path'])
+            arbitrary_raw_result = self.api_path(arbitrary_raw_cfg['cmd'],
+                                                 **arbitrary_raw_cfg['params'])
+            for i in arbitrary_raw_result:
+                self.result['message'].append(i)
+            self.return_result(False)
+        except Exception as e:
+            self.errors(e)
 
     def return_result(self, ch_status=False, status=True):
         if status == "False":
